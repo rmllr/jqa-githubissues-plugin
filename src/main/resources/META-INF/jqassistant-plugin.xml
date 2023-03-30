@@ -1,22 +1,24 @@
-<jqa-plugin:jqassistant-plugin
-        xmlns:jqa-plugin="http://www.buschmais.com/jqassistant/core/plugin/schema/v1.1"
-        name="GitHub-Issues">
-    <description>Provides a scanner for GitHub Issues.</description>
+<jqassistant-plugin xmlns="http://schema.jqassistant.org/plugin/v1.10"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://schema.jqassistant.org/plugin/v1.10 https://schema.jqassistant.org/plugin/jqassistant-plugin-v1.10.xsd"
+                    name="jQAssistant GitHub Plugin" id="jqa.plugin.github">
+    <description>Provides a scanner for GitHub.</description>
     <model>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHub</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubMilestone</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubIssue</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubRepository</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubLabel</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubUser</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubComment</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubCommit</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubPullRequest</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubMarkdownPointer</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubIssuesConfigurationFile</class>
-        <class>org.jqassistant.contrib.plugin.githubissues.model.GitHubTimestamps</class>
+        <class>org.jqassistant.plugin.github.model.GitHub</class>
+        <class>org.jqassistant.plugin.github.model.GitHubBranch</class>
+        <class>org.jqassistant.plugin.github.model.GitHubCommit</class>
+        <class>org.jqassistant.plugin.github.model.GitHubIssue</class>
+        <class>org.jqassistant.plugin.github.model.GitHubLabel</class>
+        <class>org.jqassistant.plugin.github.model.GitHubMilestone</class>
+        <class>org.jqassistant.plugin.github.model.GitHubRepository</class>
+        <class>org.jqassistant.plugin.github.model.GitHubUser</class>
+        <class>org.jqassistant.plugin.github.model.GitHubPullRequest</class>
     </model>
+    <scope>
+        <class>org.jqassistant.plugin.github.scanner.GitHubScope</class>
+    </scope>
     <scanner>
-        <class>org.jqassistant.contrib.plugin.githubissues.scanner.GitHubIssueScannerPlugin</class>
+        <class>org.jqassistant.plugin.github.scanner.GitHubIssueScannerPlugin</class>
+        <class>org.jqassistant.plugin.github.scanner.GHRepositoryScannerPlugin</class>
     </scanner>
-</jqa-plugin:jqassistant-plugin>
+</jqassistant-plugin>

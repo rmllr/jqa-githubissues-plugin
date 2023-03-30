@@ -1,0 +1,172 @@
+= jQAssistant GitHub Plugin
+
+This is a GitHub scanner for [jQAssistant](https://jqassistant.org/).
+It enables jQAssistant to scan and analyze GitHub repositories.
+
+== Using the jQAssistant GitHub Plugin
+
+To be able to use the plug-in, it must be specified as a plug-in to jQAssistant. Additionally, at least one GitHub repository needs to be configured to be scanned. Optionally, the branch to scan may be configured using the scanner property `github.repository.branch`. This property defaults to `main`.
+
+[source, yaml]
+----
+jqassistant:
+  plugins:
+    - group-id: org.jqassistant.plugin <1>
+      artifact-id: jqassistant-github-plugin
+      version: ${jqassistant.github-plugin.version}
+  scan:
+    properties:
+      github.repository.branch: master <2>
+    include:
+      urls:
+        - github:repository::https://github.com/shopizer-ecommerce/shopizer <3>
+----
+<1> Dependency to the GitHub plugin
+<2> The branch to scan
+<3> The repository to scan
+
+
+== Labels
+
+The plugin uses the following labels in the resulting graph:
+
+|====
+| Label | Description
+
+| GitHub
+| Parent label for all nodes related to the GitHub-Issues plugin.
+
+| Branch
+| Represents a GitHub Branch.
+
+| Commit
+| Represents a GitHub Commit.
+
+| Issue
+| Represents a GitHub Issue.
+
+| Label
+| Represents a GitHub Label.
+
+| Milestone
+| Represents a GitHub Milestone which is a collection of Issues.
+
+| PullRequest
+| Represents a Pull Request. A Pull Request always is an Issue.
+
+| Repository
+| Represents a GitHub Repository.
+
+| User
+| Represents a GitHub User.
+|====
+
+Here are the possible relations between those labels:
+
+== Use Cases
+
+=== Overview
+
+List all your open Issues over multiple repositories:
+
+[source, cypher]
+.List all your open Issues over multiple repositories
+----
+MATCH
+    (r:GitHub:Repository)-[:HAS_ISSUE]->(i:GitHub:Issue {state:"OPEN"})
+RETURN
+    r.owner + "/" + r.name AS Repository, i.title AS Issue
+----
+
+
+[source, cypher]
+.Count open Issues per repository
+----
+MATCH
+    (r:GitHub:Repository)-[:HAS_ISSUE]->(:GitHub:Issue {state:"OPEN"})
+RETURN
+    r.owner + "/" + r.name AS Repository, count(*) AS issueCount
+ORDER BY
+    issueCount DESC
+----
+
+
+[source, cypher]
+.List open issues per user
+----
+MATCH
+    (:GitHub:Issue {state:"OPEN"})-[:HAS_ASSIGNEE]->(u:GitHub:User)
+RETURN
+    u.username AS UserName, count(*) AS OpenIssues
+----
+
+=== Issue quality
+
+[source,cypher]
+.Show issues without description
+----
+MATCH
+    (i:GitHub:Issue)
+WHERE
+    i.body = ""
+RETURN
+    i.number AS Issue, i.title AS Title
+----
+
+
+[source, cypher]
+.Show issues without labels
+----
+MATCH
+    (i:GitHub:Issue)
+WHERE
+    NOT (i)-[:HAS_LABEL]->()
+RETURN
+    i.number AS Issue, i.title AS Title
+----
+
+[source, cypher]
+.Show durations it needed to resolve an issue
+----
+MATCH
+    (i:GitHub:Issue{state: "CLOSED"})
+RETURN
+    i.number AS Issue, i.title AS Title, duration.between(i.createdAt, i.closedAt)
+----
+
+[source, cypher]
+.Show issues older than 1 month that are still open
+----
+MATCH
+    (i:Issue {state:"OPEN"})
+WHERE
+    i.createdAt <= datetime()-duration('P30D')
+RETURN
+    i.number AS Issue, i.title AS Title
+----
+
+==== Why are these issues still open?
+
+Let's have a look at a few indicators:
+
+[source, cypher]
+.Find open issues without labels
+----
+MATCH
+    (i:GitHub:Issue {state:"OPEN"})
+WHERE
+    NOT (i)-[:HAS_LABEL]->(:GitHub:Label)
+RETURN
+    i.number AS Issue, i.title AS Title
+----
+
+[source, cypher]
+.Find open issues without assignee
+----
+MATCH
+    (i:GitHub:Issue {state:"OPEN"})
+WHERE
+    NOT (i)-[:HAS_ASSIGNEE]->(:GitHub:User)
+RETURN
+    i.number AS Issue, i.title AS Title
+----
