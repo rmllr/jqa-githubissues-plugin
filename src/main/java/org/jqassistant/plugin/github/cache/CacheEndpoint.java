@@ -242,6 +242,37 @@ public class CacheEndpoint {
         return milestone.orElseGet(() -> createGitHubMilestone(gHMilestone));
     }
 
+    public GitHubRelease findOrCreateGitHubRelease(GHRelease ghRelease) {
+        Optional<GitHubRelease> release = descriptorCache.getRelease(ghRelease.getName());
+        return release.orElseGet(() -> createGitHubRelease(ghRelease));
+    }
+
+    public GitHubTag findOrCreateGitHubTag(GHTag ghTag) {
+        Optional<GitHubTag> tag = descriptorCache.getTag(ghTag.getName());
+        return tag.orElseGet(() -> createGitHubTag(ghTag));
+    }
+
+    private GitHubTag createGitHubTag(GHTag ghTag){
+        log.debug("Creating new tag: " + ghTag);
+
+        GitHubTag tag = store.create(GitHubTag.class);
+        tag.setName(ghTag.getName());
+        tag.setCommitSha(ghTag.getCommit().getSHA1());
+        descriptorCache.put(tag);
+        return tag;
+    }
+
+    private GitHubRelease createGitHubRelease(GHRelease ghRelease){
+        log.debug("Creating new release: " + ghRelease);
+
+        GitHubRelease release = store.create(GitHubRelease.class);
+        release.setName(ghRelease.getName());
+        release.setBody(ghRelease.getBody());
+        release.setTagName(ghRelease.getTagName());
+        descriptorCache.put(release);
+        return release;
+    }
+
     private GitHubMilestone createGitHubMilestone(GHMilestone ghMilestone) {
         log.debug("Creating new milestone: " + ghMilestone);
 

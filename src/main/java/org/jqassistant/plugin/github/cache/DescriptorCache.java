@@ -28,6 +28,8 @@ class DescriptorCache {
     private final TreeMap<String, GitHubUser> users = new TreeMap<>();
     private final TreeMap<String, GitHubLabel> labels = new TreeMap<>();
     private final TreeMap<Integer, GitHubMilestone> milestones = new TreeMap<>();
+    private final TreeMap<String, GitHubRelease> releases = new TreeMap<>();
+    private final TreeMap<String, GitHubTag> tags = new TreeMap<>();
 
     Optional<GitHubMilestone> getMilestone(Integer milestoneID) {
         return Optional.ofNullable(milestones.get(milestoneID));
@@ -53,6 +55,12 @@ class DescriptorCache {
         return getIssue(pullRequestId).filter(i -> i instanceof GitHubPullRequest).map(i -> (GitHubPullRequest) i);
     }
 
+    Optional<GitHubRelease> getRelease(String releaseName) {
+        return Optional.ofNullable(releases.get(releaseName));
+    }
+
+    Optional<GitHubTag> getTag(String tagName) { return Optional.ofNullable(tags.get(tagName)); }
+
     void put(GitHubUser user) {
         if (user.getUsername() != null) {
             this.users.put(user.getUsername(), user);
@@ -76,5 +84,11 @@ class DescriptorCache {
     void put(GitHubIssue issue) {
         this.issues.putIfAbsent(issue.getNumber(), issue);
     }
+
+    void put(GitHubRelease release) {
+        this.releases.putIfAbsent(release.getName(), release);
+    }
+
+    void put(GitHubTag tag) { this.tags.putIfAbsent(tag.getName(), tag); }
 
 }

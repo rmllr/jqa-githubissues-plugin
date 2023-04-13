@@ -43,6 +43,8 @@ class GraphBuilder {
         // branch independent
         importMilestones(ghRepository, gitHubRepository);
         importIssues(ghRepository, gitHubRepository);
+        importReleases(ghRepository, gitHubRepository);
+        importTags(ghRepository, gitHubRepository);
 
         log.info("Repository scan complete");
         log.info("Remaining rate limit for user: {}", gitHub.getRateLimit());
@@ -77,6 +79,34 @@ class GraphBuilder {
         }
         gitHubRepository.getMilestones().addAll(milestones);
         log.info("Imported {} milestones", milestones.size());
+    }
+
+    private void importReleases(GHRepository repository, GitHubRepository gitHubRepository) {
+        List<GitHubRelease> releases = new LinkedList<>();
+        try{
+            for (GHRelease release : repository.listReleases()) {
+                log.debug("Found release: {}", release.getName());
+                releases.add(cacheEndpoint.findOrCreateGitHubRelease(release));
+            }
+            gitHubRepository.getReleases().addAll(releases);
+            log.info("Imported {} releases", releases.size());
+        } catch(IOException e){
+            throw new RuntimeException();
+        }
+    }
+
+    private void importTags(GHRepository repository, GitHubRepository gitHubRepository) {
+        List<GitHubTag> tags = new LinkedList<>();
+        try{
+            for(GHTag tag : repository.listTags()) {
+                log.debug("Found tag: {}", tag.getName());
+                tags.add(cacheEndpoint.findOrCreateGitHubTag(tag));
+            }
+            gitHubRepository.getTags().addAll(tags);
+            log.info("Imported {} tags", tags.size());
+        } catch(IOException e){
+            throw new RuntimeException();
+        }
     }
 
     private void importIssues(GHRepository repository, GitHubRepository gitHubRepository) {

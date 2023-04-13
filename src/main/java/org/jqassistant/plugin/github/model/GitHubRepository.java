@@ -25,6 +25,12 @@ public interface GitHubRepository extends GitHub, Descriptor, NamedDescriptor {
     @Relation("HAS_MILESTONE")
     List<GitHubMilestone> getMilestones();
 
+    @Relation("HAS_RELEASE")
+    List<GitHubRelease> getReleases();
+
+    @Relation("HAS_TAG")
+    List<GitHubTag> getTags();
+
     @Relation("HAS_PULL_REQUEST")
     List<GitHubPullRequest> getPullRequests();
 
