@@ -54,8 +54,14 @@ The plugin uses the following labels in the resulting graph:
 | PullRequest
 | Represents a Pull Request. A Pull Request always is an Issue.
 
+| Release
+| Represents a GitHub Release.
+
 | Repository
 | Represents a GitHub Repository.
+
+| Tag
+| Represents a Git tag.
 
 | User
 | Represents a GitHub User.
