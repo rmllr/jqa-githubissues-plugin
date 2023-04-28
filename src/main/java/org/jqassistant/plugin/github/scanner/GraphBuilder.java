@@ -43,8 +43,8 @@ class GraphBuilder {
         // branch independent
         importMilestones(ghRepository, gitHubRepository);
         importIssues(ghRepository, gitHubRepository);
-        importReleases(ghRepository, gitHubRepository);
         importTags(ghRepository, gitHubRepository);
+        importReleases(ghRepository, gitHubRepository);
 
         log.info("Repository scan complete");
         log.info("Remaining rate limit for user: {}", gitHub.getRateLimit());

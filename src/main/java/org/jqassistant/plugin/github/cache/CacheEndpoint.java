@@ -238,7 +238,6 @@ public class CacheEndpoint {
      */
     public GitHubMilestone findOrCreateGitHubMilestone(GHMilestone gHMilestone) {
         Optional<GitHubMilestone> milestone = descriptorCache.getMilestone(gHMilestone.getNumber());
-
         return milestone.orElseGet(() -> createGitHubMilestone(gHMilestone));
     }
 
@@ -257,7 +256,8 @@ public class CacheEndpoint {
 
         GitHubTag tag = store.create(GitHubTag.class);
         tag.setName(ghTag.getName());
-        tag.setCommitSha(ghTag.getCommit().getSHA1());
+        GitHubCommit commit = findOrCreateGitHubCommit(ghTag.getCommit());
+        tag.setCommit(commit);
         descriptorCache.put(tag);
         return tag;
     }
@@ -268,7 +268,11 @@ public class CacheEndpoint {
         GitHubRelease release = store.create(GitHubRelease.class);
         release.setName(ghRelease.getName());
         release.setBody(ghRelease.getBody());
-        release.setTagName(ghRelease.getTagName());
+        Optional<GitHubTag> optionalTag = descriptorCache.getTag(ghRelease.getTagName());
+        if(optionalTag.isPresent()){
+            GitHubTag tag = optionalTag.get();
+            release.setTag(tag);
+        }
         descriptorCache.put(release);
         return release;
     }
