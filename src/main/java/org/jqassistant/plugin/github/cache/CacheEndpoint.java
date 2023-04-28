@@ -238,8 +238,43 @@ public class CacheEndpoint {
      */
     public GitHubMilestone findOrCreateGitHubMilestone(GHMilestone gHMilestone) {
         Optional<GitHubMilestone> milestone = descriptorCache.getMilestone(gHMilestone.getNumber());
-
         return milestone.orElseGet(() -> createGitHubMilestone(gHMilestone));
+    }
+
+    public GitHubRelease findOrCreateGitHubRelease(GHRelease ghRelease) {
+        Optional<GitHubRelease> release = descriptorCache.getRelease(ghRelease.getName());
+        return release.orElseGet(() -> createGitHubRelease(ghRelease));
+    }
+
+    public GitHubTag findOrCreateGitHubTag(GHTag ghTag) {
+        Optional<GitHubTag> tag = descriptorCache.getTag(ghTag.getName());
+        return tag.orElseGet(() -> createGitHubTag(ghTag));
+    }
+
+    private GitHubTag createGitHubTag(GHTag ghTag){
+        log.debug("Creating new tag: " + ghTag);
+
+        GitHubTag tag = store.create(GitHubTag.class);
+        tag.setName(ghTag.getName());
+        GitHubCommit commit = findOrCreateGitHubCommit(ghTag.getCommit());
+        tag.setCommit(commit);
+        descriptorCache.put(tag);
+        return tag;
+    }
+
+    private GitHubRelease createGitHubRelease(GHRelease ghRelease){
+        log.debug("Creating new release: " + ghRelease);
+
+        GitHubRelease release = store.create(GitHubRelease.class);
+        release.setName(ghRelease.getName());
+        release.setBody(ghRelease.getBody());
+        Optional<GitHubTag> optionalTag = descriptorCache.getTag(ghRelease.getTagName());
+        if(optionalTag.isPresent()){
+            GitHubTag tag = optionalTag.get();
+            release.setTag(tag);
+        }
+        descriptorCache.put(release);
+        return release;
     }
 
     private GitHubMilestone createGitHubMilestone(GHMilestone ghMilestone) {
